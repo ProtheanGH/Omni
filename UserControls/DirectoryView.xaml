@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Omni.UserControls"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800" Loaded="UserControl_Loaded">
     <Grid>
         <Button x:Name="Btn_Back" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Click="Btn_Back_Click" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}">
             <Button.OpacityMask>
@@ -57,7 +57,7 @@
             <Button x:Name="Btn_SizeColumn" Content="Size" Grid.Column="3" VerticalAlignment="Top" Width="99" HorizontalContentAlignment="Left"/>
 
         </Grid>
-        <ListBox x:Name="LB_Content" Margin="135,51,0,0" Height="399">
+        <ListBox x:Name="LB_Content" Margin="135,51,0,0" Height="399" MouseUp="LB_Content_MouseUp" KeyDown="LB_Content_KeyDown" SelectionMode="Extended">
         </ListBox>
     </Grid>
 </UserControl>

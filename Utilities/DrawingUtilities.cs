@@ -10,9 +10,9 @@ using System.Windows.Media.Imaging;
 
 namespace Omni.Utilities
 {
-  class DrawingUtilities
+  static class DrawingUtilities
   {
-    // Public Interface
+    // --- Public Interface ---
     public static BitmapSource CreateBitmapSourceFromGdiBitmap(Bitmap bitmap)
     {
       if (bitmap == null)

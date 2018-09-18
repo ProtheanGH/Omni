@@ -27,10 +27,12 @@ namespace Omni.UserControls
   public partial class ContentDisplay : UserControl
   {
     // Private Variables:
-    List<Label> _property_labels;
-    DirectoryView _owning_directory_view;
-    ContentType _type;
-    string _content_path;
+    private List<TextBlock> _property_labels;
+    private DirectoryView _owning_directory_view;
+    private ContentType _type;
+
+    // Properties
+    public string ContentPath { get; private set; }
 
     // Private Enums
     private enum ContentType
@@ -64,7 +66,7 @@ namespace Omni.UserControls
     {
       InitializeComponent();
 
-      _property_labels = new List<Label>();
+      _property_labels = new List<TextBlock>();
 
       _owning_directory_view = owning_view;
 
@@ -89,14 +91,14 @@ namespace Omni.UserControls
 
     public void UpdatePropertyInfo(ref FileInfo file_info)
     {
-      _content_path = file_info.FullName;
+      ContentPath = file_info.FullName;
       _type = ContentType.file;
 
       // Update display information
-      Lbl_Name.Content = file_info.Name;
-      Lbl_Date.Content = file_info.LastWriteTime.ToString("MM/dd/yyyy hh:mm tt");
-      Lbl_Type.Content = file_info.Extension;
-      Lbl_Size.Content = ConvertFileSize(file_info.Length);
+      Lbl_Name.Text = file_info.Name;
+      Lbl_Date.Text = file_info.LastWriteTime.ToString("MM/dd/yyyy hh:mm tt");
+      Lbl_Type.Text = file_info.Extension;
+      Lbl_Size.Text = ConvertFileSize(file_info.Length);
 
       // Update Icon
       Icon file_icon = System.Drawing.Icon.ExtractAssociatedIcon(file_info.FullName);
@@ -105,14 +107,14 @@ namespace Omni.UserControls
 
     public void UpdatePropertyInfo(ref DirectoryInfo folder_info)
     {
-      _content_path = folder_info.FullName;
+      ContentPath = folder_info.FullName;
       _type = ContentType.folder;
 
       // Update display information
-      Lbl_Name.Content = folder_info.Name;
-      Lbl_Date.Content = folder_info.LastWriteTime.ToString("MM/dd/yyyy hh:mm tt");
-      Lbl_Type.Content = "File folder";
-      Lbl_Size.Content = ""; // No size displayed for folders
+      Lbl_Name.Text = folder_info.Name;
+      Lbl_Date.Text = folder_info.LastWriteTime.ToString("MM/dd/yyyy hh:mm tt");
+      Lbl_Type.Text = "File folder";
+      Lbl_Size.Text = ""; // No size displayed for folders
 
       // Update Icon
       Img_ContentIcon.Source = DrawingUtilities.CreateBitmapSourceFromGdiBitmap(Properties.Resources.folder_icon);
@@ -133,7 +135,7 @@ namespace Omni.UserControls
         case ContentType.file:
           try
           {
-            System.Diagnostics.Process.Start(_content_path);
+            System.Diagnostics.Process.Start(ContentPath);
           }
           catch (Exception e)
           {
@@ -142,12 +144,19 @@ namespace Omni.UserControls
           }
           break;
         case ContentType.folder:
-          return _owning_directory_view.LoadDirectory(_content_path);
+          return _owning_directory_view.LoadDirectory(ContentPath);
         default:
           return false;
       }
 
       return true;
+    }
+
+    public void CopyContent()
+    {
+      System.Collections.Specialized.StringCollection file_list = new System.Collections.Specialized.StringCollection();
+      file_list.Add(ContentPath);
+      Clipboard.SetFileDropList(file_list);
     }
 
     // Private Interface
@@ -168,6 +177,33 @@ namespace Omni.UserControls
     private void UserControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
       OpenContent();
+    }
+
+    private void UserControl_MouseUp(object sender, MouseButtonEventArgs e)
+    {
+      switch (e.ChangedButton)
+      {
+        case MouseButton.Right:
+          // TODO: Temporary thing, really this should open up an options menu
+          CopyContent();
+
+          // Testing
+          Peter.ShellContextMenu contxt_menu = new Peter.ShellContextMenu();
+          FileInfo[] files = new FileInfo[1];
+          files[0] = new FileInfo(ContentPath);
+          contxt_menu.ShowContextMenu(files, new System.Drawing.Point(20, 20));
+          break;
+      }
+    }
+
+    private void UserControl_KeyUp(object sender, KeyEventArgs e)
+    {
+      switch (e.Key)
+      {
+        case Key.Enter:
+          OpenContent();
+          break;
+      }
     }
   }
 }

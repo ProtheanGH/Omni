@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using Omni.Utilities;
+using System.Threading.Tasks;
 
 namespace Omni.UserControls
 {
@@ -24,9 +25,15 @@ namespace Omni.UserControls
   public partial class DirectoryView : UserControl
   {
     // --- Private Variables ---
+    //! Full path of the currently displayed directory
     private string _current_directory_path;
+    //! The path that is currently being displayed. This may be shorter, if the full path is too long to fully fit into the textbox.
+    private string _display_path;
+    //! List of previous directories
     private List<string> _back_directories;
+    //! List of forward directories. Will only contain things if the user has used the back button.
     private List<string> _forward_directories;
+    //! FileSystemWatcher for reloading the displayed content when something changes
     private FileSystemWatcher _directory_watcher;
 
     // --- Private Static Varirables ---
@@ -70,7 +77,7 @@ namespace Omni.UserControls
 
       string previous_directory = _current_directory_path;
       _current_directory_path = directory_path;
-      TB_DirectoryPath.Text = _current_directory_path;
+      DisplayDirectoryPath();
 
       UpdateActiveDirectoryViews(previous_directory);
 
@@ -173,6 +180,45 @@ namespace Omni.UserControls
       return selected_content;
     }
 
+    int GetMaximumCharactersToDisplay(ref TextBox text_box)
+    {
+      // Rough estimation of how many characters can be displayed for the size of the textbox
+      return (int)(text_box.ActualWidth / (text_box.FontSize * 0.5));
+    }
+
+    void DisplayDirectoryPath()
+    {
+      int max_length = GetMaximumCharactersToDisplay(ref TB_DirectoryPath);
+      if(_current_directory_path.Length > max_length)
+      {
+        // Full path is too long to display, only display what we can, but make sure we start from the last folder (the one we are in)
+        string[] split_path = _current_directory_path.Split('\\');
+
+        int index = split_path.Length - 1;
+        _display_path = split_path[index--];
+        int current_length = _display_path.Length;
+
+        for(; index >= 0; --index)
+        {
+          int new_length = current_length + 1 + split_path[index].Length;
+          if (new_length > max_length)
+          {
+            // Reached the max number of folders we can display
+            break;
+          }
+
+          _display_path = split_path[index] + "\\" + _display_path;
+          current_length = new_length;
+        }
+      }
+      else
+      {
+        _display_path = _current_directory_path;
+      }
+
+      TB_DirectoryPath.Text = _display_path;
+    }
+
     // --- Private Static Interface ---
     private static void ReloadDirectory(string directory)
     {
@@ -190,6 +236,7 @@ namespace Omni.UserControls
     }
 
     // --- Events ---
+    // --- User Control Events
     private void UserControl_Loaded(object sender, RoutedEventArgs e)
     {
       if (s_update_timer == null)
@@ -201,6 +248,7 @@ namespace Omni.UserControls
       }
     }
 
+    // --- Button Events
     private void Btn_Back_Click(object sender, RoutedEventArgs e)
     {
       if (0 == _back_directories.Count)
@@ -238,6 +286,7 @@ namespace Omni.UserControls
       }
     }
 
+    // --- Textbox Events
     private void TB_DirectoryPath_KeyUp(object sender, KeyEventArgs e)
     {
       if (Key.Enter != e.Key)
@@ -251,8 +300,41 @@ namespace Omni.UserControls
       }
     }
 
+    private void TB_DirectoryPath_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+      DisplayDirectoryPath();
+    }
+
+    private async void TB_DirectoryPath_GotFocus(object sender, RoutedEventArgs e)
+    {
+      // Wait a small amount, so that this overrides the default focus event
+      await Task.Delay(100);
+
+      // Display and highlight the full path of the current directory
+      TB_DirectoryPath.Text = _current_directory_path;
+      TB_DirectoryPath.SelectAll();
+      // Show the Caret (switch back to default brush)
+      TB_DirectoryPath.CaretBrush = null;
+    }
+
+    private void TB_DirectoryPath_LostFocus(object sender, RoutedEventArgs e)
+    {
+      // Display the directory path normally
+      DisplayDirectoryPath();
+      // Hide the Caret
+      TB_DirectoryPath.SelectionLength = 0;
+      TB_DirectoryPath.CaretBrush = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+    }
+
+    // --- Listbox Events
     private void LB_Content_MouseUp(object sender, MouseButtonEventArgs e)
     {
+      if(e.Source != LB_Content)
+      {
+        // Ignore if the event came from the content inside of the Listbox
+        return;
+      }
+
       switch (e.ChangedButton)
       {
         case MouseButton.Right:
@@ -261,6 +343,12 @@ namespace Omni.UserControls
           DirectoryInfo[] directories = new DirectoryInfo[1];
           directories[0] = new DirectoryInfo(_current_directory_path);
           contxt_menu.ShowContextMenu(directories, new System.Drawing.Point(20, 20));
+          break;
+        case MouseButton.Left:
+          // Display the directory path normally
+          LB_Content.Focus();
+          // Deselect any content
+          LB_Content.SelectedItems.Clear();
           break;
       }
     }
@@ -320,5 +408,6 @@ namespace Omni.UserControls
       // Reload the directory
       ReloadDirectory(((FileSystemWatcher)source).Path);
     }
+
   }
 }

@@ -105,11 +105,23 @@ namespace Omni.UserControls
 
       DirectoryInfo directory = new DirectoryInfo(directory_path);
 
+      ContentDisplay.ContentProperties[] properties = {
+          ContentDisplay.ContentProperties.Property_Name,
+          ContentDisplay.ContentProperties.Property_DateModified,
+          ContentDisplay.ContentProperties.Property_Type,
+          ContentDisplay.ContentProperties.Property_Size };
+
+      _previous_column_widths[0] = Grid_DirectoryContents.ColumnDefinitions[Convert.ToInt32(PropertyColumn.Column_Name)].ActualWidth;
+      _previous_column_widths[1] = Grid_DirectoryContents.ColumnDefinitions[Convert.ToInt32(PropertyColumn.Column_DateModified)].ActualWidth;
+      _previous_column_widths[2] = Grid_DirectoryContents.ColumnDefinitions[Convert.ToInt32(PropertyColumn.Column_Type)].ActualWidth;
+      _previous_column_widths[3] = Grid_DirectoryContents.ColumnDefinitions[Convert.ToInt32(PropertyColumn.Column_Size)].ActualWidth;
+
       // Display the Folders
       DirectoryInfo[] folders = directory.GetDirectories();
       for (int i = 0; i < folders.Length; ++i)
       {
         Omni.UserControls.ContentDisplay folder_display = new ContentDisplay(this, ref folders[i]);
+        folder_display.SetColumnWidths(properties, _previous_column_widths);
         LB_Content.Items.Add(folder_display);
       }
 
@@ -118,6 +130,7 @@ namespace Omni.UserControls
       for (int i = 0; i < files.Length; ++i)
       {
         Omni.UserControls.ContentDisplay file_display = new ContentDisplay(this, ref files[i]);
+        file_display.SetColumnWidths(properties, _previous_column_widths);
         LB_Content.Items.Add(file_display);
       }
 
@@ -431,6 +444,30 @@ namespace Omni.UserControls
       _previous_column_widths = widths;
     }
 
+    private void Grid_DirectoryContents_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+      // If we didn't have a valid size before, then get the widths and update the content
+      // All size changes, besides for the initial size change, will be handled by `GridSplitter_DragDelta`
+      if (_previous_column_widths[0] <= 0.0)
+      {
+        ContentDisplay.ContentProperties[] properties = {
+          ContentDisplay.ContentProperties.Property_Name,
+          ContentDisplay.ContentProperties.Property_DateModified,
+          ContentDisplay.ContentProperties.Property_Type,
+          ContentDisplay.ContentProperties.Property_Size };
+
+        _previous_column_widths[0] = Grid_DirectoryContents.ColumnDefinitions[Convert.ToInt32(PropertyColumn.Column_Name)].ActualWidth;
+        _previous_column_widths[1] = Grid_DirectoryContents.ColumnDefinitions[Convert.ToInt32(PropertyColumn.Column_DateModified)].ActualWidth;
+        _previous_column_widths[2] = Grid_DirectoryContents.ColumnDefinitions[Convert.ToInt32(PropertyColumn.Column_Type)].ActualWidth;
+        _previous_column_widths[3] = Grid_DirectoryContents.ColumnDefinitions[Convert.ToInt32(PropertyColumn.Column_Size)].ActualWidth;
+
+        foreach (ContentDisplay display in LB_Content.Items)
+        {
+          display.SetColumnWidths(properties, _previous_column_widths);
+        }
+      }
+    }
+
     // --- Static Events ---
     private static void DirectoryView_OnTick(object sender, EventArgs e)
     {
@@ -454,6 +491,5 @@ namespace Omni.UserControls
       // Reload the directory
       ReloadDirectory(((FileSystemWatcher)source).Path);
     }
-
   }
 }

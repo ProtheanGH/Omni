@@ -43,7 +43,7 @@
         <TextBox x:Name="TB_DirectoryPath" Height="23" Margin="75,0,130,0" Text="TextBox" VerticalAlignment="Top" KeyUp="TB_DirectoryPath_KeyUp" MaxLines="1" SizeChanged="TB_DirectoryPath_SizeChanged" GotFocus="TB_DirectoryPath_GotFocus" LostFocus="TB_DirectoryPath_LostFocus"/>
         <TextBox x:Name="TB_SearchBox" HorizontalAlignment="Right" Height="23" Margin="0" TextWrapping="Wrap" Text="Search {directory}" VerticalAlignment="Top" Width="125"/>
         <ScrollViewer x:Name="ScrView_Directories" HorizontalAlignment="Left" Margin="0,28,0,0" Width="130" Height="431"/>
-        <Grid x:Name="Grid_DirectoryContents" Margin="135,28,0,0" Height="23" Grid.ColumnSpan="4" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" VerticalAlignment="Top">
+        <Grid x:Name="Grid_DirectoryContents" Margin="135,28,0,0" Height="23" Grid.ColumnSpan="4" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" VerticalAlignment="Top" SizeChanged="Grid_DirectoryContents_SizeChanged">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="284" MinWidth="75"/>
                 <ColumnDefinition Width="5"/>

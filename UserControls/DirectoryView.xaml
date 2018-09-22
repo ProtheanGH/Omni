@@ -45,16 +45,22 @@
         <ScrollViewer x:Name="ScrView_Directories" HorizontalAlignment="Left" Margin="0,28,0,0" Width="130" Height="431"/>
         <Grid x:Name="Grid_DirectoryContents" Margin="135,28,0,0" Height="23" Grid.ColumnSpan="4" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="299"/>
-                <ColumnDefinition Width="133"/>
-                <ColumnDefinition Width="133"/>
-                <ColumnDefinition Width="99"/>
+                <ColumnDefinition Width="284" MinWidth="75"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="133" MinWidth="50"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="133" MinWidth="50"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="99" MinWidth="50"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Button x:Name="Btn_NameColumn" Content="Name" VerticalAlignment="Top" HorizontalContentAlignment="Left"/>
-            <Button x:Name="Btn_DateColumn" Content="Date Modified" Grid.Column="1" Margin="0" VerticalAlignment="Top" Width="125" HorizontalContentAlignment="Left"/>
-            <Button x:Name="Btn_TypeColumn" Content="Type" Grid.Column="2" Margin="0" VerticalAlignment="Top" HorizontalContentAlignment="Left"/>
-            <Button x:Name="Btn_SizeColumn" Content="Size" Grid.Column="3" VerticalAlignment="Top" Width="99" HorizontalContentAlignment="Left"/>
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="2,0,1,0" VerticalAlignment="Top" Width="5" DragDelta="GridSplitter_DragDelta" Background="#FF807E7E"/>
+            <Button x:Name="Btn_DateColumn" Content="Date Modified" Grid.Column="2" Margin="0" VerticalAlignment="Top" HorizontalContentAlignment="Left"/>
+            <GridSplitter Grid.Column="3" HorizontalAlignment="Left" Height="23" Margin="2,0,1,0" VerticalAlignment="Top" Width="5" DragDelta="GridSplitter_DragDelta" Background="#FF807E7E"/>
+            <Button x:Name="Btn_TypeColumn" Content="Type" Grid.Column="4" Margin="0" VerticalAlignment="Top" HorizontalContentAlignment="Left"/>
+            <GridSplitter Grid.Column="5" HorizontalAlignment="Left" Height="23" Margin="2,0,1,0" VerticalAlignment="Top" Width="5" DragDelta="GridSplitter_DragDelta" Background="#FF807E7E"/>
+            <Button x:Name="Btn_SizeColumn" Content="Size" Grid.Column="6" VerticalAlignment="Top" Width="99" HorizontalContentAlignment="Left"/>
 
         </Grid>
         <ListBox x:Name="LB_Content" Margin="135,51,0,0" Height="399" MouseUp="LB_Content_MouseUp" KeyDown="LB_Content_KeyDown" SelectionMode="Extended"/>

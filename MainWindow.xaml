@@ -7,7 +7,7 @@
         xmlns:UserControls="clr-namespace:Omni.UserControls" x:Class="Omni.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+    <Grid x:Name="Grid_Views" SizeChanged="Grid_Views_SizeChanged">
 
         <UserControls:DirectoryView Margin="0"/>
 

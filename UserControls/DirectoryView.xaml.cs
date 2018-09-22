@@ -35,11 +35,24 @@ namespace Omni.UserControls
     private List<string> _forward_directories;
     //! FileSystemWatcher for reloading the displayed content when something changes
     private FileSystemWatcher _directory_watcher;
+    //! The previous width of each one of the property columns
+    private double[] _previous_column_widths;
 
     // --- Private Static Varirables ---
     private System.Windows.Threading.DispatcherTimer s_update_timer = null;
     private static Dictionary<String, List<DirectoryView>> s_active_directory_views = new Dictionary<string, List<DirectoryView>>();
     private static Queue<DirectoryView> s_reload_queue = new Queue<DirectoryView>();
+
+    // --- Private Enums
+    //! Enum to represent which grid column corresponds to which property
+    private enum PropertyColumn
+    {
+      Column_Name = 0,
+      Column_DateModified = 2,
+      Column_Type = 4,
+      Column_Size = 6,
+      Number_Of_Columns = 4
+    }
 
     // --- Public Interface ---
     public DirectoryView()
@@ -49,6 +62,8 @@ namespace Omni.UserControls
       _current_directory_path = "";
       _back_directories = new List<string>();
       _forward_directories = new List<string>();
+
+      _previous_column_widths = new double[Convert.ToInt32(PropertyColumn.Number_Of_Columns)];
 
       // Setup the directory watcher
       _directory_watcher = new FileSystemWatcher();
@@ -180,15 +195,9 @@ namespace Omni.UserControls
       return selected_content;
     }
 
-    int GetMaximumCharactersToDisplay(ref TextBox text_box)
-    {
-      // Rough estimation of how many characters can be displayed for the size of the textbox
-      return (int)(text_box.ActualWidth / (text_box.FontSize * 0.5));
-    }
-
     void DisplayDirectoryPath()
     {
-      int max_length = GetMaximumCharactersToDisplay(ref TB_DirectoryPath);
+      int max_length = Utilities.DrawingUtilities.GetMaximumCharactersToDisplay(ref TB_DirectoryPath);
       if(_current_directory_path.Length > max_length)
       {
         // Full path is too long to display, only display what we can, but make sure we start from the last folder (the one we are in)
@@ -383,6 +392,43 @@ namespace Omni.UserControls
             break;
         }
       }
+    }
+
+    // --- Grid Events
+    private void GridSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+    {
+      ContentDisplay.ContentProperties[] properties = {
+          ContentDisplay.ContentProperties.Property_Name,
+          ContentDisplay.ContentProperties.Property_DateModified,
+          ContentDisplay.ContentProperties.Property_Type,
+          ContentDisplay.ContentProperties.Property_Size };
+
+      double[] widths = {
+          Grid_DirectoryContents.ColumnDefinitions[Convert.ToInt32(PropertyColumn.Column_Name)].ActualWidth,
+          Grid_DirectoryContents.ColumnDefinitions[Convert.ToInt32(PropertyColumn.Column_DateModified)].ActualWidth,
+          Grid_DirectoryContents.ColumnDefinitions[Convert.ToInt32(PropertyColumn.Column_Type)].ActualWidth,
+          Grid_DirectoryContents.ColumnDefinitions[Convert.ToInt32(PropertyColumn.Column_Size)].ActualWidth };
+
+      bool changed = false;
+      for(int i = 0; i < widths.Length; ++i)
+      {
+        if(widths[i] != _previous_column_widths[i])
+        {
+          changed = true;
+        }
+      }
+
+      if(false == changed)
+      {
+        return;
+      }
+
+      foreach (ContentDisplay display in LB_Content.Items)
+      {
+        display.SetColumnWidths(properties, widths);
+      }
+
+      _previous_column_widths = widths;
     }
 
     // --- Static Events ---

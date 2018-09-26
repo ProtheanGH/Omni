@@ -154,6 +154,30 @@ namespace Omni.UserControls
       }
     }
 
+    public void GetCurrentConfiguration(ref string directory, ref double[] column_widths)
+    {
+      directory = _current_directory_path;
+      column_widths = _previous_column_widths;
+    }
+
+    public void SetPropertyColumnWidths(UserControls.ContentDisplay.ContentProperties[] properties, double[] widths)
+    {
+      if (properties.Length != widths.Length)
+      {
+        throw new ArgumentException("The size of the properties and widths must match.");
+      }
+
+      for(int i = 0; i < properties.Length; ++i)
+      {
+        Grid_DirectoryContents.ColumnDefinitions[Convert.ToInt32(ConvertEnum(properties[i]))].Width = new GridLength(widths[i]);
+      }
+
+      foreach (ContentDisplay display in LB_Content.Items)
+      {
+        display.SetColumnWidths(properties, widths);
+      }
+    }
+
     // --- Private Interface ---
     private void StorePreviousDirectory(string path)
     {
@@ -239,6 +263,22 @@ namespace Omni.UserControls
       }
 
       TB_DirectoryPath.Text = _display_path;
+    }
+
+    private PropertyColumn ConvertEnum(UserControls.ContentDisplay.ContentProperties content_property)
+    {
+      switch (content_property)
+      {
+        case ContentDisplay.ContentProperties.Property_Name:
+          return PropertyColumn.Column_Name;
+        case ContentDisplay.ContentProperties.Property_DateModified:
+          return PropertyColumn.Column_DateModified;
+        case ContentDisplay.ContentProperties.Property_Type:
+          return PropertyColumn.Column_Type;
+        case ContentDisplay.ContentProperties.Property_Size:
+        default:
+          return PropertyColumn.Column_Size;
+      }
     }
 
     // --- Private Static Interface ---

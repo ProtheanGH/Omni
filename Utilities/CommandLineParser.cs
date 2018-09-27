@@ -270,13 +270,45 @@ namespace Omni.Utilities
     {
       string message = "CommandLine Arguments\n";
       message += "--------------------------------\n";
-      // Todo: Once the log is created, use the log instead of a string ...
+      message += "Omni can be started with any of the following arguments to perform certain actions without the user. Arguments should follow the format of:\n\t-{argument}={value}\n";
+
+      message += "\n\nArgument Types:\n";
+      message += "- Single\n";
+      message += "\tThere should only be one instance of this argument. If there are more than one instance of this argument, only the first one is applied.\n";
+      message += "- Multiple\n";
+      message += "\tMultiple instances of this argument is supported.\n";
+
+      message += "\n\nValue Types:\n";
+      message += "- StringValue\n";
+      message += "\tThe argument is expecting a string value.\n";
+      message += "- IntegerValue\n";
+      message += "\tThe argument will try to parse it's vaue to an integer, if it can't, then the argument will be skipped.\n";
+      message += "- DoubleValue\n";
+      message += "\tThe argument will try to parse it's vaue to an double, if it can't, then the argument will be skipped.\n";
+      message += "- LooseValue\n";
+      message += "\tThe argument is not expecting any value, and will disregard any value, if one was specified. Essentially it's treated as a boolean, if the argument is specified, then TRUE, otherwise FALSE.\n";
+
+      message += "\n\nConditional Arguments:\n";
+      message += "Some arguments are conditional, and will be ignored if certain arguments are specified. Check the argument's info to see if there are any arguments that will cause it to be ignored.\n";
+
+      message += "\n\nSupported Arguments:\n";
       foreach (KeyValuePair<string, Argument> arg in _defined_arguments)
       {
-        message += "\n" + arg.Key + "\t | \t" + arg.Value._value_type.ToString() + "\n";
-        message += "\t" + arg.Value._description;
+        message += "-" + arg.Key + "\t | \t" + arg.Value._value_type.ToString() + "\n";
+        message += "\t" + arg.Value._description + "\n";
+        message += "\t------\n";
+        message += "\t" + "Multiple allowed: " + (arg.Value._arg_type == ArgumentType.Multiple ? "true" : "false") + "\n";
+        if (null != arg.Value._ignore_conditions && arg.Value._ignore_conditions.Length > 0)
+        {
+          message += "\t" + "Ignored if the following argument(s) are present:\n";
+          foreach(string ignore_arg in arg.Value._ignore_conditions)
+          {
+            message += "\t\t-" + ignore_arg + "\n";
+          }
+        }
       }
 
+      // Todo: Log out
       int debug = 0;
     }
   }

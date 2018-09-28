@@ -33,8 +33,9 @@ namespace Omni
     {
       InitializeComponent();
 
-      _directory_views = new List<UserControls.DirectoryView>();
+      Logger.Initialize();
 
+      _directory_views = new List<UserControls.DirectoryView>();
 
       CommandLineParser argument_parser = new CommandLineParser();
       string config;
@@ -171,7 +172,8 @@ namespace Omni
       }
       catch (Exception e)
       {
-        // Todo: log out exception
+        Logger.WriteLine(Logger.SeverityType.Error, "Exception while trying save out the configuration.\n" + e.ToString());
+
         config_xml.Close();
 
         if (null != old_config)
@@ -312,7 +314,7 @@ namespace Omni
       }
       catch(Exception e)
       {
-        // Todo: Log out the exception
+        Logger.WriteLine(Logger.SeverityType.Error, "Exception while trying load configuration file at " + config_path + ".\n" + e.ToString());
         return false;
       }
 

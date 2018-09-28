@@ -81,8 +81,8 @@ namespace Omni.Utilities
       {
         if(false == IsMatchingType<typename>(defined_argument._value_type))
         {
-          // Todo: Better exception message that says the argument it failed for, and the expected type.
-          throw new Exception("Data type mismatch.");
+          Logger.WriteLine(Logger.SeverityType.Error, "Data type mismatch while trying to get command line argument: {0}. Expected a type of {1}.", argument, defined_argument._value_type);
+          throw new Exception(String.Format("Data type mismatch. {0} expects a type of {1}.", argument, defined_argument._value_type));
         }
 
         switch (defined_argument._value_type)
@@ -156,7 +156,7 @@ namespace Omni.Utilities
               }
               else
               {
-                // Todo: Log out here?
+                Logger.WriteLine(Logger.SeverityType.Warning, "No value specified for command line argument: {0}. Skipping ...", split_command[0]);
               }
             }
           }
@@ -214,7 +214,7 @@ namespace Omni.Utilities
             }
             catch (Exception e)
             {
-              // Todo: Log out exception
+              Logger.WriteLine(Logger.SeverityType.Warning, "Command line arg: {0}, failed to convert value to an integer. Skipping ...", argument._name);
             }
           }
           break;
@@ -239,7 +239,7 @@ namespace Omni.Utilities
           }
           catch (Exception e)
           {
-            // Todo: Log out exception
+            Logger.WriteLine(Logger.SeverityType.Warning, "Command line arg: {0}, failed to convert value to a double. Skipping ...", argument._name);
           }
           break;
         case ValueType.LooseArgument:
@@ -308,8 +308,7 @@ namespace Omni.Utilities
         }
       }
 
-      // Todo: Log out
-      int debug = 0;
+      Logger.WriteLine(message);
     }
   }
 }

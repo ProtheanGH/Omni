@@ -49,7 +49,7 @@ namespace Omni.Utilities
       {
         _row = -1;
         _column = -1;
-        _directory = Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
+        _directory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         _column_widths = new List<Tuple<UserControls.ContentDisplay.ContentProperties, double>>();
       }
     }

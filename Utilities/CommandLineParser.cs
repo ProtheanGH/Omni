@@ -8,6 +8,12 @@ namespace Omni.Utilities
 {
   class CommandLineParser
   {
+    // --- Arguments ---
+    public const string kArgument_Help = "help";
+    public const string kArgument_Config = "config";
+    public const string kArgument_Rows = "rows";
+    public const string kArgument_Columns = "columns";
+
     // --- Private Variables ---
     private Dictionary<string, Argument> _defined_arguments;
     private Dictionary<string, List<string>> _string_argument_values;
@@ -61,10 +67,10 @@ namespace Omni.Utilities
       _loose_arguments = new List<string>();
 
       // Define Arguments here
-      AddArgument("help", ArgumentType.Single, ValueType.LooseArgument, "Help command that will log out information for all the supported commandline arguments.");
-      AddArgument("config", ArgumentType.Single, ValueType.StringValue, "The configuration file for Omni to load during startup.");
-      AddArgument("rows", ArgumentType.Single, ValueType.IntegerValue, "The amount of rows that Omni will configure during startup.", new string[] { "config" });
-      AddArgument("columns", ArgumentType.Single, ValueType.IntegerValue, "The amount of columns that Omni will configure during startup.", new string[] { "config" });
+      AddArgument(kArgument_Help, ArgumentType.Single, ValueType.LooseArgument, "Help command that will log out information for all the supported commandline arguments.");
+      AddArgument(kArgument_Config, ArgumentType.Single, ValueType.StringValue, "The configuration file for Omni to load during startup.");
+      AddArgument(kArgument_Rows, ArgumentType.Single, ValueType.IntegerValue, "The amount of rows that Omni will configure during startup.", new string[] { "config" });
+      AddArgument(kArgument_Columns, ArgumentType.Single, ValueType.IntegerValue, "The amount of columns that Omni will configure during startup.", new string[] { "config" });
 
       Parse();
 
@@ -74,7 +80,7 @@ namespace Omni.Utilities
       }
     }
 
-    public bool GetValue<typename>(string argument, out typename value)
+    public bool GetValue<typename>(string argument, ref typename value)
     {
       Argument defined_argument;
       if(true == _defined_arguments.TryGetValue(argument, out defined_argument))
@@ -121,7 +127,31 @@ namespace Omni.Utilities
       }
 
       // Argument wasn't found (either not defined or not present in the commandline)
-      value = default(typename);
+      return false;
+    }
+
+    public bool HasArgument(string argument)
+    {
+      if(true == _defined_arguments.ContainsKey(argument))
+      {
+        if (true == _loose_arguments.Contains(argument))
+        {
+          return true;
+        }
+        else if (true == _string_argument_values.ContainsKey(argument))
+        {
+          return true;
+        }
+        else if (true == _int_argument_values.ContainsKey(argument))
+        {
+          return true;
+        }
+        else if (true == _double_argument_values.ContainsKey(argument))
+        {
+          return true;
+        }
+      }
+
       return false;
     }
 

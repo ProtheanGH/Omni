@@ -33,15 +33,11 @@ namespace Omni
     {
       InitializeComponent();
 
-      Logger.Initialize();
-
       _directory_views = new List<UserControls.DirectoryView>();
 
-      CommandLineParser argument_parser = new CommandLineParser();
-      string config;
-      argument_parser.GetValue<string>("config", out config);
-      // Todo: Check for command line args
-      LoadDefaultConfig();
+      Logger.Initialize();
+
+      ParseCommandLine();
     }
 
     public void ConfigureViewGrid(int rows, int columns)
@@ -90,7 +86,7 @@ namespace Omni
 
         int row = GetRow(i);
         int column = GetColumn(i);
-        column = column == 0 ? _column_count - 1 : column - 1;
+        //column = column == 0 ? _column_count - 1 : column - 1;
 
         Grid.SetRow(_directory_views[i], row);
         Grid.SetColumn(_directory_views[i], column);
@@ -158,6 +154,7 @@ namespace Omni
                 config_xml.WriteAttributeString(ConfigUtilities.kOmniWidthAttribute, column_widths[Convert.ToInt32(UserControls.ContentDisplay.ContentProperties.Property_Size)].ToString());
                 config_xml.WriteEndElement();
               }
+              config_xml.WriteEndElement(); // PropertyColumns
 
               config_xml.WriteEndElement(); // View
             }
@@ -256,12 +253,20 @@ namespace Omni
                 {
                   case ConfigUtilities.kOmniViewElement:
                     {
-                      ConfigUtilities.ViewConfig new_view = new ConfigUtilities.ViewConfig
-                      {
-                        _row = Convert.ToInt32(views_reader.GetAttribute(ConfigUtilities.kOmniRowElement)),
-                        _column = Convert.ToInt32(views_reader.GetAttribute(ConfigUtilities.kOmniColumnAttribute)),
-                        _directory = views_reader.GetAttribute(ConfigUtilities.kOmniDirectoryAttribute),
-                      };
+                      ConfigUtilities.ViewConfig new_view = new ConfigUtilities.ViewConfig();
+
+                      // Row Attribute
+                      string attribute = views_reader.GetAttribute(ConfigUtilities.kOmniRowAttribute);
+                      if(null != attribute)
+                        new_view._row = Convert.ToInt32(attribute);
+                      // Column Attribute
+                      attribute = views_reader.GetAttribute(ConfigUtilities.kOmniColumnAttribute);
+                      if (null != attribute)
+                        new_view._column = Convert.ToInt32(attribute);
+                      // Directory Attribute
+                      attribute = views_reader.GetAttribute(ConfigUtilities.kOmniDirectoryAttribute);
+                      if (null != attribute)
+                        new_view._directory = attribute;
 
                       XmlReader property_columns_reader = views_reader.ReadSubtree();
                       while (property_columns_reader.Read())
@@ -321,6 +326,8 @@ namespace Omni
       // Apply the configuration
       ConfigureViewGrid(_row_count, _column_count);
 
+      // Todo: Add a check to make sure the defined views are within the defined grid size
+
       int index;
       foreach(ConfigUtilities.ViewConfig view in views)
       {
@@ -356,6 +363,31 @@ namespace Omni
 
         // Create the config file
         SaveCurrentConfiguration(ConfigUtilities.kDefaultConfigPath);
+      }
+    }
+
+    private void ParseCommandLine()
+    {
+      CommandLineParser argument_parser = new CommandLineParser();
+
+      string config = "";
+      if(argument_parser.GetValue(CommandLineParser.kArgument_Config, ref config))
+      {
+        if(false == LoadConfig(config))
+        {
+          LoadDefaultConfig();
+        }
+      }
+      else if(argument_parser.HasArgument(CommandLineParser.kArgument_Rows) || argument_parser.HasArgument(CommandLineParser.kArgument_Columns))
+      {
+        argument_parser.GetValue(CommandLineParser.kArgument_Rows, ref _row_count);
+        argument_parser.GetValue(CommandLineParser.kArgument_Columns, ref _column_count);
+
+        ConfigureViewGrid(_row_count, _column_count);
+      }
+      else
+      {
+        LoadDefaultConfig();
       }
     }
 

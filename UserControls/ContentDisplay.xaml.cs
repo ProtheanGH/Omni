@@ -151,7 +151,7 @@ namespace Omni.UserControls
       DisplayContentInfo();
     }
 
-    public void SetColumnWidths(ContentProperties[] properties, double[] widths)
+    public async void SetColumnWidths(ContentProperties[] properties, double[] widths)
     {
       if(properties.Length != widths.Length)
       {
@@ -166,6 +166,8 @@ namespace Omni.UserControls
         }
       }
 
+      // Delay the task so that the property labels have time to change thier size
+      await Task.Delay(50);
       DisplayContentInfo();
     }
 
